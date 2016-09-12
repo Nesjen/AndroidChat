@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private CoordinatorLayout coordinatorLayout;
     private ListView conversationView;
     private ArrayList<Conversation> conversations;
+    private  ConversationAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -78,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void showConversation()
     {
-        ConversationAdapter adapter = new ConversationAdapter(this, conversations);
+        adapter = new ConversationAdapter(this, conversations);
         conversationView.setAdapter(adapter);
         conversationView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -89,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 //System.out.println(conversation.getSender());
                 Intent intent = new Intent(MainActivity.this, ChatActivity.class);
                 intent.putExtra("Conversation", conversation);
+                intent.putExtra("ConversationAdapter", adapter);
                 startActivity(intent);
             }
         });
@@ -102,26 +106,28 @@ public class MainActivity extends AppCompatActivity {
 
     public void createDummyData()
     {
-        Conversation one = new Conversation("Eirik Nesje");
-        Conversation two = new Conversation("Birthe Vabø");
-        Conversation three = new Conversation("Inge Blaalid");
-        Conversation four = new Conversation("Kato Nesje");
+      //  Conversation one = new Conversation("Eirik Nesje");
+      //  Conversation two = new Conversation("Birthe Vabø");
+      //  Conversation three = new Conversation("Inge Blaalid");
+      //  Conversation four = new Conversation("Kato Nesje");
 
-        one.addMessage("Hallo");
-        two.addMessage("Test Melding!");
-        three.addMessage("Kan vi møtast i Stryn?");
+      //  one.addMessage("Hallo");
+      //  two.addMessage("Test Melding!");
+      //  three.addMessage("Kan vi møtast i Stryn?");
 
-        conversations.add(one);
-        conversations.add(two);
-        conversations.add(three);
+      //  conversations.add(one);
+      //  conversations.add(two);
+      //  conversations.add(three);
     }
 
     public void handleNewMessageButton()
     {
-        FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.newChatButton);
-        myFab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton newChatButton = (FloatingActionButton) findViewById(R.id.newChatButton);
+        newChatButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, ContactActivity.class);
+                intent.putExtra("Conversations", conversations);
+                intent.putExtra("ConversationAdapter", adapter);
                 startActivity(intent);
             }
         });

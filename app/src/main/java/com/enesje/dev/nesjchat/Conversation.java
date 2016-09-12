@@ -8,11 +8,11 @@ import java.util.ArrayList;
  */
 
 public class Conversation implements Serializable {
-    private String sender;
+    private Contact sender;
     private String lastMessage;
     private ArrayList<String> messages;
 
-    public Conversation(String sender)
+    public Conversation(Contact sender)
     {
         this.sender = sender;
         lastMessage = "";
@@ -20,7 +20,8 @@ public class Conversation implements Serializable {
     }
 
     public String getSender() {
-        return sender;
+
+        return sender.getContactName();
     }
 
     public String getLastMessage() {
@@ -40,9 +41,7 @@ public class Conversation implements Serializable {
         this.lastMessage = lastMessage;
     }
 
-    public void setSender(String sender) {
-        this.sender = sender;
-    }
+
 
     public void addMessage(String newMessage) {
          messages.add(newMessage);

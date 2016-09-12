@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -14,7 +15,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -28,6 +31,10 @@ public class ChatActivity extends AppCompatActivity {
 
     private CoordinatorLayout messageCoordinator;
     private ListView messages;
+    private EditText inputText;
+    private Conversation conversation;
+    private ConversationAdapter conversationAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,14 +45,26 @@ public class ChatActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        Conversation conversation = (Conversation) getIntent().getSerializableExtra("Conversation");
+        conversation = (Conversation) getIntent().getSerializableExtra("Conversation");
         getSupportActionBar().setTitle(conversation.getSender());
-
+        //intent.putExtra("ConversationAdapter", adapter);
+        conversationAdapter = (ConversationAdapter) getIntent().getSerializableExtra("ConversationAdapter");
         messageCoordinator = (CoordinatorLayout) findViewById(R.id.messageCoordinator);
 
+        inputText = (EditText) findViewById(R.id.inputText);
+        FloatingActionButton sendMessageButton = (FloatingActionButton) findViewById(R.id.sendMsgButton);
+        sendMessageButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                String message = inputText.getText().toString();
+                conversation.addMessage(message);
+                conversationAdapter.notifyDataSetChanged();
+                inputText.setText("");
+            }
+        });
 
 
     }
+
 
 
     @Override

@@ -5,6 +5,7 @@ import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
@@ -19,6 +20,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -32,7 +35,9 @@ public class ContactActivity extends AppCompatActivity {
     private CoordinatorLayout contactCoordinator;
     private ListView contactView;
     private ArrayList<Contact> contacts;
+    private ArrayList<Conversation>  conversations;
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
+    private ConversationAdapter conversationAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +50,15 @@ public class ContactActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle("Select Contact");
 
+        conversations = (ArrayList<Conversation>) getIntent().getSerializableExtra("Conversations");
+        conversationAdapter = (ConversationAdapter) getIntent().getSerializableExtra("ConversationAdapter");
+       //
+
+
         contactCoordinator = (CoordinatorLayout) findViewById(R.id.contactCoordinator);
         contactView = (ListView) findViewById(R.id.contactView);
         contacts = new ArrayList<>();
         showContacts();
-
-
     }
 
 
@@ -119,7 +127,35 @@ public class ContactActivity extends AppCompatActivity {
 
         ContactAdapter adapter = new ContactAdapter(this, contacts);
         contactView.setAdapter(adapter);
+        contactView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position,
+                                    long id) {
+                Contact contact= (Contact) parent.getAdapter().getItem(position);
 
+                boolean foundConversation = false;
+                Conversation currentConversation = null;
+                for(int i = 0; i < conversations.size(); i++)
+                {
+                    if(conversations.get(i).getSender() == contact.getContactName())
+                    {
+                        foundConversation = true;
+                        currentConversation = conversations.get(i);
+                    }
+                }
+
+                if(!foundConversation)
+                {
+                    currentConversation = new Conversation(contact);
+                    conversations.add(currentConversation);
+                }
+
+                Intent intent = new Intent(ContactActivity.this, ChatActivity.class);
+                intent.putExtra("Conversation", currentConversation);
+                intent.putExtra("ConversationAdapter", conversationAdapter);
+                startActivity(intent);
+            }
+        });
 
 
     }

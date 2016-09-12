@@ -7,13 +7,14 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by Eirik on 11.09.2016.
  */
 
-public class ConversationAdapter extends ArrayAdapter<Conversation> {
+public class ConversationAdapter extends ArrayAdapter<Conversation> implements Serializable {
 
     private ArrayList<Conversation> conversations;
 

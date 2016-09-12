@@ -25,4 +25,24 @@
         android:layout_height="match_parent"
         android:id="@+id/MessageView" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:srcCompat="@android:drawable/ic_menu_send"
+        android:id="@+id/sendMsgButton"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="10dp"/>
+
+    <EditText
+        android:layout_width="323dp"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text=""
+        android:ems="10"
+        android:id="@+id/inputText"
+        android:layout_gravity="start|bottom"/>
+
 </android.support.design.widget.CoordinatorLayout>
