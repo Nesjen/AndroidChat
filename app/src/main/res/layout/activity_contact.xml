@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:windowActionBar="false"
 
-    android:id="@+id/searchResultCoordinator">
+    android:id="@+id/contactCoordinator">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -20,15 +20,9 @@
         />
 
 
-    <TextView
-        android:text="Act2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/ActivityTwo" />
-
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/searchResultView" />
+        android:id="@+id/contactView" />
 
 </android.support.design.widget.CoordinatorLayout>

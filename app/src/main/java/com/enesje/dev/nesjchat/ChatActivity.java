@@ -1,6 +1,5 @@
 package com.enesje.dev.nesjchat;
 
-
 import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.Context;
@@ -10,7 +9,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -23,39 +21,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Nesjen on 09.09.2016.
+ * Created by Eirik on 12.09.2016.
  */
 
-public class SearchActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity {
 
-    private CoordinatorLayout searchCoordinatorLayout;
-    private List<String> contactNames;
-    private ListView lv;
+    private CoordinatorLayout messageCoordinator;
+    private ListView messages;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search);
+        setContentView(R.layout.activity_chat);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        System.out.println("Mekker Search Activty!");
-        contactNames = new ArrayList<>();
-        lv = (ListView) findViewById(R.id.searchResultView);
-        searchCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.searchResultCoordinator);
-        contactNames.add("Eirik Nesje");
-        contactNames.add("Inge Blaalid");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        Conversation conversation = (Conversation) getIntent().getSerializableExtra("Conversation");
+        getSupportActionBar().setTitle(conversation.getSender());
+
+        messageCoordinator = (CoordinatorLayout) findViewById(R.id.messageCoordinator);
 
 
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, contactNames);
-
-        lv.setAdapter(arrayAdapter);
-
-
-        Intent intent = getIntent();
-        if(Intent.ACTION_SEARCH.equals(intent.getAction())) {
-           //String query = Intent.getStringExtra(SearchManager.QUERY);
-           // doSearch(query);
-            System.out.println("Hello");
-        }
 
     }
 
@@ -77,13 +65,18 @@ public class SearchActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
-            Snackbar snackbar = Snackbar.make(searchCoordinatorLayout, "No settings available", Snackbar.LENGTH_LONG);
+            Snackbar snackbar = Snackbar.make(messageCoordinator, "No settings available", Snackbar.LENGTH_LONG);
             snackbar.show();
             return true;
         }
 
         if (id == R.id.main_search) {
             return true;
+        }
+
+        if (item.getItemId() == android.R.id.home) // Press Back Icon
+        {
+            finish();
         }
 
         return super.onOptionsItemSelected(item);

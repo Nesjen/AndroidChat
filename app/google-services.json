@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "363117423705",
+    "firebase_url": "https://chatclient-702e3.firebaseio.com",
+    "project_id": "chatclient-702e3",
+    "storage_bucket": "chatclient-702e3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:363117423705:android:f8530df128e12f48",
+        "android_client_info": {
+          "package_name": "com.enesje.dev.nesjchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "363117423705-sra8ekf9ma7cjevnmdpvrrpvqodc0i51.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8fIngRJBq3kORe90KJ5LxQR7OtzUZ-b8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

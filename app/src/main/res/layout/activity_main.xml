@@ -31,12 +31,11 @@
         android:layout_marginRight="30dp"
         app:backgroundTint="@android:color/holo_blue_dark" />
 
-    <android.support.v7.widget.RecyclerView
+    <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/conversationView"
         android:layout_marginTop="@dimen/abc_action_bar_default_height_material"
-        android:id="@+id/messagesView" >
-
-    </android.support.v7.widget.RecyclerView>
+        />
 
 </android.support.design.widget.CoordinatorLayout>
