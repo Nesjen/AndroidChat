@@ -14,7 +14,7 @@ import java.util.ArrayList;
  * Created by Eirik on 11.09.2016.
  */
 
-public class ConversationAdapter extends ArrayAdapter<Conversation> implements Serializable {
+public class ConversationAdapter extends ArrayAdapter<Conversation> {
 
     private ArrayList<Conversation> conversations;
 

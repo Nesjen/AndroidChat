@@ -17,6 +17,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,6 +25,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -37,7 +46,8 @@ public class ContactActivity extends AppCompatActivity {
     private ArrayList<Contact> contacts;
     private ArrayList<Conversation>  conversations;
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
-    private ConversationAdapter conversationAdapter;
+    private ContactAdapter adapter;
+ //   private ConversationAdapter conversationAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +61,6 @@ public class ContactActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Select Contact");
 
         conversations = (ArrayList<Conversation>) getIntent().getSerializableExtra("Conversations");
-        conversationAdapter = (ConversationAdapter) getIntent().getSerializableExtra("ConversationAdapter");
-       //
-
 
         contactCoordinator = (CoordinatorLayout) findViewById(R.id.contactCoordinator);
         contactView = (ListView) findViewById(R.id.contactView);
@@ -84,6 +91,14 @@ public class ContactActivity extends AppCompatActivity {
             return true;
         }
 
+        if(id == R.id.action_about)
+        {
+            System.out.println("VI HAR SO MONGE: " + conversations.size());
+
+            return true;
+        }
+
+
         if (id == R.id.main_search) {
             return true;
         }
@@ -109,50 +124,38 @@ public class ContactActivity extends AppCompatActivity {
 
     private void getContacts()
     {
-        ContentResolver cr = getContentResolver();
-        Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI,null, null, null, null);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("users");
 
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                for (DataSnapshot postSnapshot: snapshot.getChildren()) {
+                  Contact post = postSnapshot.getValue(Contact.class);
+                  System.out.println("SJÅ HER: " + post.getContactName());
+                    contacts.add(post);
 
-        // Cursor cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null,null, null);
-
-        while (cursor.moveToNext()) {
-            String name =cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            if(!name.contains("@")) {
-                contacts.add(new Contact(null,name,null,"95418804"));
+                }
+                adapter = new ContactAdapter(ContactActivity.this, contacts);
+                contactView.setAdapter(adapter);
             }
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+            }
+        });
 
 
-        }
-
-
-        ContactAdapter adapter = new ContactAdapter(this, contacts);
-        contactView.setAdapter(adapter);
+       // adapter = new ContactAdapter(this, contacts);
+       // contactView.setAdapter(adapter);
         contactView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position,
                                     long id) {
                 Contact contact= (Contact) parent.getAdapter().getItem(position);
 
-                boolean foundConversation = false;
-                Conversation currentConversation = null;
-                for(int i = 0; i < conversations.size(); i++)
-                {
-                    if(conversations.get(i).getSender() == contact.getContactName())
-                    {
-                        foundConversation = true;
-                        currentConversation = conversations.get(i);
-                    }
-                }
-
-                if(!foundConversation)
-                {
-                    currentConversation = new Conversation(contact);
-                    conversations.add(currentConversation);
-                }
-
                 Intent intent = new Intent(ContactActivity.this, ChatActivity.class);
-                intent.putExtra("Conversation", currentConversation);
-                intent.putExtra("ConversationAdapter", conversationAdapter);
+                intent.putExtra("Contact", contact);
                 startActivity(intent);
             }
         });

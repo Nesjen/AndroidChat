@@ -10,30 +10,22 @@ import java.io.Serializable;
 
 public class Contact implements Serializable {
     private String contactName;
-    private Uri contactImage;
-    private String contactNr;
-    private Long contactID;
+    private String contactID;
 
-    public Contact(Uri contactImage, String contactName, Long contactID, String contactNr) {
-        this.contactImage = contactImage;
+    public Contact(String contactID, String contactName) {
         this.contactName = contactName;
         this.contactID = contactID;
-        this.contactNr = contactNr;
+    }
+
+    public Contact() {
+
     }
 
     public String getContactName() {
         return contactName;
     }
 
-    public Uri getContactImage() {
-        return contactImage;
-    }
-
-    public String getContactNr() {
-        return contactNr;
-    }
-
-    public Long getContactID() {
+    public String getContactID() {
         return contactID;
     }
 
@@ -41,15 +33,7 @@ public class Contact implements Serializable {
         this.contactName = contactName;
     }
 
-    public void setContactImage(Uri contactImage) {
-        this.contactImage = contactImage;
-    }
-
-    public void setContactNr(String contactNr) {
-        this.contactNr = contactNr;
-    }
-
-    public void setContactID(Long contactID) {
+    public void setContactID(String contactID) {
         this.contactID = contactID;
     }
 }

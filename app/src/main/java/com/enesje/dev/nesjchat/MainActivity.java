@@ -5,6 +5,7 @@ import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -19,6 +20,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +43,11 @@ public class MainActivity extends AppCompatActivity {
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.maincoordinator);
         conversationView = (ListView) findViewById(R.id.conversationView);
         conversations = new ArrayList<>();
+
+
+
         createDummyData();
+        createConversation();
         showConversation();
 
         handleNewMessageButton();
@@ -76,6 +83,11 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        if (id == R.id.action_about) {
+            System.out.println("VI HAR SO MONGE: " + conversations.size());
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -92,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
                 //System.out.println(conversation.getSender());
                 Intent intent = new Intent(MainActivity.this, ChatActivity.class);
                 intent.putExtra("Conversation", conversation);
-                intent.putExtra("ConversationAdapter", adapter);
                 startActivity(intent);
             }
         });
@@ -101,7 +112,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void createConversation()
     {
-
+        Contact tempContact = new Contact("22","Eirik Nesje");
+        Conversation tempConversation = new Conversation(tempContact);
+        tempConversation.addMessage("Kom på skulen");
+        conversations.add(tempConversation);
     }
 
     public void createDummyData()
@@ -126,8 +140,7 @@ public class MainActivity extends AppCompatActivity {
         newChatButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, ContactActivity.class);
-                intent.putExtra("Conversations", conversations);
-                intent.putExtra("ConversationAdapter", adapter);
+                 intent.putExtra("Conversations", conversations);
                 startActivity(intent);
             }
         });
