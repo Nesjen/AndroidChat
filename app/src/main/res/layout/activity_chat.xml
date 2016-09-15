@@ -23,7 +23,8 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/MessageView" />
+        android:id="@+id/MessageView"
+        android:layout_marginTop="@dimen/abc_action_bar_default_height_material"/>
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"

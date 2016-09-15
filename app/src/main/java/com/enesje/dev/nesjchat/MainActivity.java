@@ -40,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Conversation> conversations;
     private  ConversationAdapter adapter;
     private String currentUserID;
+    private String myUsername;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,11 +52,12 @@ public class MainActivity extends AppCompatActivity {
         conversationView = (ListView) findViewById(R.id.conversationView);
         conversations = new ArrayList<>();
         currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        //myUsername = (String) getIntent().getSerializableExtra("myUsername");
 
-
+        getUserNameFromDB();
         createDummyData();
-        showConversation();
-
+        //showConversation();
+        showConversationValue();
         handleNewMessageButton();
 
 
@@ -115,6 +118,38 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+
+
+
+    public void getUserNameFromDB()
+    {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("users");
+
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                for (DataSnapshot postSnapshot: snapshot.getChildren()) {
+                    String userID = postSnapshot.getKey();
+                    if(userID.equals(currentUserID)){
+                        Contact tempContact = postSnapshot.getValue(Contact.class);
+                        myUsername = tempContact.getContactName();
+                        System.out.println("***********MY USERNAME: " + myUsername);
+                    }
+                }
+
+
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+                //ToDo fix noken feilmeldinga
+            }
+        });
+
+    }
+
     public void showConversation()
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -133,13 +168,71 @@ public class MainActivity extends AppCompatActivity {
                                 for (DataSnapshot childPostSnapshot : postSnapshot.getChildren()) {
 
                                         Message newMsg = childPostSnapshot.getValue(Message.class);
-                                        Conversation newConversation = new Conversation(conversationID, newMsg.getSenderOne(), "Siste melding");
+                                       Conversation newConversation = new Conversation(conversationID, newMsg.getSenderOne(), "Siste melding");
                                         conversations.add(newConversation);
                                     break;
 
 
                                 }
                             }
+
+
+                    }
+                }
+                adapter = new ConversationAdapter(MainActivity.this, conversations);
+                conversationView.setAdapter(adapter);
+
+
+
+
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+                //ToDo fix noken feilmeldinga
+            }
+        });
+
+
+
+
+
+    }
+
+    public void showConversationValue()
+    {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("conversationValues");
+
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                conversations.clear();
+                for (DataSnapshot postSnapshot: snapshot.getChildren()) {
+                    String conversationID = postSnapshot.getKey();
+
+                    if(conversationID.contains(currentUserID)){
+                        if(!haveLoadedConversation(conversationID)) {
+
+                                Conversation newConversation = null;
+                                ConversationValues conValues = postSnapshot.getValue(ConversationValues.class);
+                                if(conValues.getUserIDOne().equals(currentUserID))
+                                {
+                                     newConversation = new Conversation(conversationID,conValues.getFriendlyNameTwo() , conValues.getLastMessage());
+                                }
+                                if(conValues.getUserIDTwo().equals(currentUserID))
+                                {
+                                     newConversation = new Conversation(conversationID,conValues.getFriendlyNameOne() , conValues.getLastMessage());
+                                }
+                                if(newConversation != null){
+                                    conversations.add(newConversation);
+
+                                }
+
+
+
+
+                        }
 
 
                     }
@@ -177,6 +270,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public void getFriendlyName(String conversationID, String currentUserID)
+    {
+
+
+
+    }
+
+
 
     public void createDummyData()
     {
@@ -200,7 +301,8 @@ public class MainActivity extends AppCompatActivity {
         newChatButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, ContactActivity.class);
-                 intent.putExtra("Conversations", conversations);
+                intent.putExtra("Conversations", conversations);
+                intent.putExtra("myUsername", myUsername);
                 startActivity(intent);
             }
         });

@@ -47,6 +47,7 @@ public class ContactActivity extends AppCompatActivity {
     private ArrayList<Conversation>  conversations;
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
     private ContactAdapter adapter;
+    private String myUsername;
  //   private ConversationAdapter conversationAdapter;
 
     @Override
@@ -59,6 +60,7 @@ public class ContactActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         getSupportActionBar().setTitle("Select Contact");
+        myUsername = (String) getIntent().getSerializableExtra("myUsername");
 
         conversations = (ArrayList<Conversation>) getIntent().getSerializableExtra("Conversations");
 
@@ -149,16 +151,17 @@ public class ContactActivity extends AppCompatActivity {
        // adapter = new ContactAdapter(this, contacts);
        // contactView.setAdapter(adapter);
         contactView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position,
-                                    long id) {
-                Contact contact= (Contact) parent.getAdapter().getItem(position);
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position,
+                                long id) {
+            Contact contact= (Contact) parent.getAdapter().getItem(position);
 
-                Intent intent = new Intent(ContactActivity.this, ChatActivity.class);
-                intent.putExtra("Contact", contact);
-                startActivity(intent);
-            }
-        });
+            Intent intent = new Intent(ContactActivity.this, ChatActivity.class);
+            intent.putExtra("Contact", contact);
+            intent.putExtra("myUsername", myUsername);
+            startActivity(intent);
+        }
+    });
 
 
     }

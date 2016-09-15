@@ -51,7 +51,7 @@ import static android.Manifest.permission.READ_CONTACTS;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
-
+    private String loginUsername;
     /**
      * Id to identity READ_CONTACTS permission request.
      */
@@ -238,6 +238,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                     Toast.makeText(LoginActivity.this, "Login failed!", Toast.LENGTH_SHORT).show();
                                 }else{
                                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    //myUsername = (String) getIntent().getSerializableExtra("myUsername");
+
                                     startActivity(intent);
 
 

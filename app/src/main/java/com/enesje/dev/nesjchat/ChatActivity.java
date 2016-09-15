@@ -51,6 +51,7 @@ public class ChatActivity extends AppCompatActivity {
     private String currentConversationID = "";
     String count = "1";
     private ArrayList<Message> messageList = new ArrayList<>();
+    private String myUsername;
 
 
 
@@ -62,7 +63,7 @@ public class ChatActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-
+        myUsername = (String) getIntent().getSerializableExtra("myUsername");
         sender = (Contact) getIntent().getSerializableExtra("Contact");
         getSupportActionBar().setTitle(sender.getContactName());
         currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -90,6 +91,10 @@ public class ChatActivity extends AppCompatActivity {
 
 
     }
+
+
+
+
 
     public void showMessages()
     {
@@ -129,6 +134,15 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+
+
+
+
+    }
+
+
+    public void showMessageFilterOutCurrentUser()
+    {
 
 
 
@@ -185,17 +199,20 @@ public class ChatActivity extends AppCompatActivity {
     public void pushMsg(Message message, String messageID)
     {
         System.out.println("Skal pushe!");
+        //String lastMessage, String userIDTwo, String userIDOne, String getFriendlyNameTwo, String friendlyNameOne
+        ConversationValues conVal = new ConversationValues(message.getMessage(),currentUserID,senderID,myUsername,sender.getContactName());
         if(gotConversation){
             System.out.println("hadde conv!");
             if(currentConversationID.equals(currentUserID + "|" + senderID)) {
                 System.out.println("Var lik 1");
                 FirebaseDatabase.getInstance().getReference("conversation").child(currentUserID + "|" + senderID).child(messageID).setValue(message);
-
+                FirebaseDatabase.getInstance().getReference("conversationValues").child(currentUserID + "|" + senderID ).setValue(conVal);
             }
 
             if(currentConversationID.equals(senderID + "|" + currentUserID)) {
                 System.out.println("Va lik 2!");
                 FirebaseDatabase.getInstance().getReference("conversation").child(senderID + "|" + currentUserID).child(messageID).setValue(message);
+                FirebaseDatabase.getInstance().getReference("conversationValues").child(senderID + "|" + currentUserID).setValue(conVal);
 
 
             }
@@ -204,6 +221,8 @@ public class ChatActivity extends AppCompatActivity {
             currentConversationID = currentUserID + "|" + senderID;
             gotConversation = true;
             FirebaseDatabase.getInstance().getReference("conversation").child(currentUserID + "|" + senderID).child(messageID).setValue(message);
+            FirebaseDatabase.getInstance().getReference("conversationValues").child(currentUserID + "|" + senderID ).setValue(conVal);
+
         }
     }
 
