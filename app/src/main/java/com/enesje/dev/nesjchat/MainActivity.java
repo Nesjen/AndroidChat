@@ -1,11 +1,9 @@
 package com.enesje.dev.nesjchat;
 
-import android.app.Activity;
 import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -27,10 +25,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static android.support.design.widget.Snackbar.LENGTH_LONG;
 
@@ -38,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private CoordinatorLayout coordinatorLayout;
     private ListView conversationView;
     private ArrayList<Conversation> conversations;
-    private  ConversationAdapter adapter;
+    private ConversationAdapter adapter;
     private String currentUserID;
     private String myUsername;
 
@@ -51,14 +47,18 @@ public class MainActivity extends AppCompatActivity {
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.maincoordinator);
         conversationView = (ListView) findViewById(R.id.conversationView);
         conversations = new ArrayList<>();
-        currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        //myUsername = (String) getIntent().getSerializableExtra("myUsername");
 
-        getUserNameFromDB();
-        createDummyData();
-        //showConversation();
+        //For Firebase handling:
+        currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid(); // Gets current userID (currentUserID)
+        getUserNameFromDB(); // Gets current username (myUsername)
+
+        //Display conversation on mainscreen
         showConversationValue();
+
+        //Handle FAB - new message button.
         handleNewMessageButton();
+
+        handleConversationClicks();
 
 
     }
@@ -99,29 +99,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void showConversationMightBeDelted()
-    {
-                adapter = new ConversationAdapter(this, conversations);
-                conversationView.setAdapter(adapter);
-        conversationView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position,
-                                    long id) {
-                Conversation conversation= (Conversation) parent.getAdapter().getItem(position);
 
-                //System.out.println(conversation.getSender());
-                Intent intent = new Intent(MainActivity.this, ChatActivity.class);
-                intent.putExtra("Conversation", conversation);
-                startActivity(intent);
-            }
-        });
-
-    }
-
-
-
-
-
+    /**
+     * Single value FB-eventlistner to init username.
+     */
     public void getUserNameFromDB()
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -132,15 +113,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 for (DataSnapshot postSnapshot: snapshot.getChildren()) {
-                    String userID = postSnapshot.getKey();
-                    if(userID.equals(currentUserID)){
+                    String userID = postSnapshot.getKey(); //Gets the userID
+                    if(userID.equals(currentUserID)){ //If userID match currentUserID
                         Contact tempContact = postSnapshot.getValue(Contact.class);
-                        myUsername = tempContact.getContactName();
-                        System.out.println("***********MY USERNAME: " + myUsername);
+                        myUsername = tempContact.getContactName(); //Gets username
                     }
                 }
-
-
             }
             @Override
             public void onCancelled(DatabaseError error) {
@@ -150,54 +128,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void showConversation()
-    {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("conversation");
-
-
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                conversations.clear();
-                for (DataSnapshot postSnapshot: snapshot.getChildren()) {
-                    String conversationID = postSnapshot.getKey();
-
-                    if(conversationID.contains(currentUserID)){
-                            if(!haveLoadedConversation(conversationID)) {
-                                for (DataSnapshot childPostSnapshot : postSnapshot.getChildren()) {
-
-                                        Message newMsg = childPostSnapshot.getValue(Message.class);
-                                       Conversation newConversation = new Conversation(conversationID, newMsg.getSenderOne(), "Siste melding");
-                                        conversations.add(newConversation);
-                                    break;
-
-
-                                }
-                            }
-
-
-                    }
-                }
-                adapter = new ConversationAdapter(MainActivity.this, conversations);
-                conversationView.setAdapter(adapter);
-
-
-
-
-            }
-            @Override
-            public void onCancelled(DatabaseError error) {
-                //ToDo fix noken feilmeldinga
-            }
-        });
-
-
-
-
-
-    }
-
+    /**
+     *  Gets all ConversationValues(Sender/reciever + lastmessage) and displays them on screen with conversationAdapter.
+     */
     public void showConversationValue()
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -216,32 +149,25 @@ public class MainActivity extends AppCompatActivity {
 
                                 Conversation newConversation = null;
                                 ConversationValues conValues = postSnapshot.getValue(ConversationValues.class);
+
                                 if(conValues.getUserIDOne().equals(currentUserID))
                                 {
-                                     newConversation = new Conversation(conversationID,conValues.getFriendlyNameTwo() , conValues.getLastMessage());
+                                     newConversation = new Conversation(conversationID,conValues.getFriendlyNameTwo() , conValues.getLastMessage(),conValues.getUserIDTwo());
                                 }
                                 if(conValues.getUserIDTwo().equals(currentUserID))
                                 {
-                                     newConversation = new Conversation(conversationID,conValues.getFriendlyNameOne() , conValues.getLastMessage());
+                                     newConversation = new Conversation(conversationID,conValues.getFriendlyNameOne() , conValues.getLastMessage(),conValues.getUserIDTwo());
                                 }
                                 if(newConversation != null){
                                     conversations.add(newConversation);
 
                                 }
 
-
-
-
                         }
-
-
                     }
                 }
                 adapter = new ConversationAdapter(MainActivity.this, conversations);
                 conversationView.setAdapter(adapter);
-
-
-
 
             }
             @Override
@@ -256,6 +182,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Checks if conversation is already loaded
+     * @param conversationID - the conversation ID you want to see if already exsist.
+     * @return boolean - True if conversation exsist.
+     */
     public boolean haveLoadedConversation(String conversationID)
     {
         boolean returnValue = false;
@@ -270,31 +201,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void getFriendlyName(String conversationID, String currentUserID)
-    {
-
-
-
-    }
-
-
-
-    public void createDummyData()
-    {
-      //  Conversation one = new Conversation("Eirik Nesje");
-      //  Conversation two = new Conversation("Birthe Vabø");
-      //  Conversation three = new Conversation("Inge Blaalid");
-      //  Conversation four = new Conversation("Kato Nesje");
-
-      //  one.addMessage("Hallo");
-      //  two.addMessage("Test Melding!");
-      //  three.addMessage("Kan vi møtast i Stryn?");
-
-      //  conversations.add(one);
-      //  conversations.add(two);
-      //  conversations.add(three);
-    }
-
+    /**
+     *  Handles FAB for new Messages.
+     */
     public void handleNewMessageButton()
     {
         FloatingActionButton newChatButton = (FloatingActionButton) findViewById(R.id.newChatButton);
@@ -306,6 +215,32 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    public void handleConversationClicks()
+    {
+        conversationView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position,
+                                    long id) {
+                Conversation conversation= (Conversation) parent.getAdapter().getItem(position);
+                Contact contact = new Contact(conversation.getSenderID(),conversation.getSender()); //String contactID, String contactName
+                Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+                intent.putExtra("Contact", contact);
+                intent.putExtra("myUsername", myUsername);
+                startActivity(intent);
+            }
+        });
+
+    }
+
+
+
+
+    //TODO - save conversations locally
+    public void saveConversations()
+    {
+
     }
 
 }

@@ -17,27 +17,24 @@ import java.util.ArrayList;
 public class MessageAdapter extends ArrayAdapter<Message> {
 
     private ArrayList<Message> messages;
-
-    public MessageAdapter(Context context, ArrayList<Message> messages) {
+    private String currentUserID;
+    public MessageAdapter(Context context, ArrayList<Message> messages, String currentUserID) {
         super(context, 0, messages);
         this.messages = messages;
+        this.currentUserID = currentUserID;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // Get the data item for this position
         Message message = getItem(position);
-        // Check if an existing view is being reused, otherwise inflate the view
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_conversation, parent, false);
+
+        if (message.getSenderOne().equals(currentUserID)) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_message_send, parent, false);
+        }else{
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_message_rec, parent, false);
         }
-        // Lookup view for data population
-        TextView senderName = (TextView) convertView.findViewById(R.id.senderName);
-        TextView lastMessage = (TextView) convertView.findViewById(R.id.lastMessage);
-        // Populate the data into the template view using the data object
-        senderName.setText(message.getSenderOne());
-        lastMessage.setText(message.getMessage());
-        // Return the completed view to render on screen
+        TextView textMessage = (TextView) convertView.findViewById(R.id.messageText);
+        textMessage.setText(message.getMessage());
         return convertView;
     }
 

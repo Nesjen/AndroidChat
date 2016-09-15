@@ -11,11 +11,21 @@ public class Conversation implements Serializable {
     private String sender;
     private String lastMessage;
     private String conversationID;
+    private String senderID;
 
-    public Conversation(String conversationID, String sender, String lastMessage) {
+    public Conversation(String conversationID, String sender, String lastMessage, String senderID) {
         this.conversationID = conversationID;
         this.lastMessage = lastMessage;
         this.sender = sender;
+        this.senderID = senderID;
+    }
+
+    public String getSenderID() {
+        return senderID;
+    }
+
+    public void setSenderID(String senderID) {
+        this.senderID = senderID;
     }
 
     public String getSender() {

@@ -36,6 +36,7 @@
         android:layout_height="match_parent"
         android:id="@+id/conversationView"
         android:layout_marginTop="@dimen/abc_action_bar_default_height_material"
-        />
+        android:divider="@null"
+        android:dividerHeight="0dp"/>
 
 </android.support.design.widget.CoordinatorLayout>
