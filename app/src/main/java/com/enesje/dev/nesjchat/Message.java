@@ -9,15 +9,25 @@ import java.io.Serializable;
 public class Message implements Serializable{
     private String senderOne;
     private String message;
+    private String messageID;
 
-    public Message(String senderOne, String message) {
+    public Message(String senderOne, String message, String messageID) {
         this.message = message;
         this.senderOne = senderOne;
+        this.messageID = messageID;
     }
 
     public Message()
     {
 
+    }
+
+    public String getMessageID() {
+        return messageID;
+    }
+
+    public void setMessageID(String messageID) {
+        this.messageID = messageID;
     }
 
     public void setSenderOne(String senderOne) {

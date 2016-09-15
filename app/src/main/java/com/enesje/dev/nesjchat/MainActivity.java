@@ -21,6 +21,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -33,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView conversationView;
     private ArrayList<Conversation> conversations;
     private  ConversationAdapter adapter;
-
+    private String currentUserID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,11 +49,10 @@ public class MainActivity extends AppCompatActivity {
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.maincoordinator);
         conversationView = (ListView) findViewById(R.id.conversationView);
         conversations = new ArrayList<>();
-
+        currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
 
         createDummyData();
-        createConversation();
         showConversation();
 
         handleNewMessageButton();
@@ -91,10 +96,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void showConversation()
+    public void showConversationMightBeDelted()
     {
-        adapter = new ConversationAdapter(this, conversations);
-        conversationView.setAdapter(adapter);
+                adapter = new ConversationAdapter(this, conversations);
+                conversationView.setAdapter(adapter);
         conversationView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position,
@@ -110,13 +115,68 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void createConversation()
+    public void showConversation()
     {
-        Contact tempContact = new Contact("22","Eirik Nesje");
-        Conversation tempConversation = new Conversation(tempContact);
-        tempConversation.addMessage("Kom på skulen");
-        conversations.add(tempConversation);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("conversation");
+
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                conversations.clear();
+                for (DataSnapshot postSnapshot: snapshot.getChildren()) {
+                    String conversationID = postSnapshot.getKey();
+
+                    if(conversationID.contains(currentUserID)){
+                            if(!haveLoadedConversation(conversationID)) {
+                                for (DataSnapshot childPostSnapshot : postSnapshot.getChildren()) {
+
+                                        Message newMsg = childPostSnapshot.getValue(Message.class);
+                                        Conversation newConversation = new Conversation(conversationID, newMsg.getSenderOne(), "Siste melding");
+                                        conversations.add(newConversation);
+                                    break;
+
+
+                                }
+                            }
+
+
+                    }
+                }
+                adapter = new ConversationAdapter(MainActivity.this, conversations);
+                conversationView.setAdapter(adapter);
+
+
+
+
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+                //ToDo fix noken feilmeldinga
+            }
+        });
+
+
+
+
+
     }
+
+    public boolean haveLoadedConversation(String conversationID)
+    {
+        boolean returnValue = false;
+        for(int i = 0; i < conversations.size();i++)
+        {
+            if(conversations.get(i).getConversationID().equals(conversationID)){
+                returnValue = true;
+            }
+        }
+        return returnValue;
+
+    }
+
+
 
     public void createDummyData()
     {

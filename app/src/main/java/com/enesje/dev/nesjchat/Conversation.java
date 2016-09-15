@@ -8,52 +8,37 @@ import java.util.ArrayList;
  */
 
 public class Conversation implements Serializable {
-    private Contact sender;
+    private String sender;
     private String lastMessage;
-    private ArrayList<String> messages;
+    private String conversationID;
 
-    public Conversation(Contact sender)
-    {
+    public Conversation(String conversationID, String sender, String lastMessage) {
+        this.conversationID = conversationID;
+        this.lastMessage = lastMessage;
         this.sender = sender;
-        lastMessage = "";
-        messages = new ArrayList<>();
     }
 
     public String getSender() {
+        return sender;
+    }
 
-        return sender.getContactName();
+    public String getConversationID() {
+        return conversationID;
     }
 
     public String getLastMessage() {
-        if(messages.get(messages.size()-1) != null)
-        {
-            return messages.get(messages.size()-1);
-        }else{
-            return "";
-        }
+        return lastMessage;
     }
 
-    public ArrayList<String> getMessages() {
-        return messages;
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
+    public void setConversationID(String conversationID) {
+        this.conversationID = conversationID;
     }
 
     public void setLastMessage(String lastMessage) {
         this.lastMessage = lastMessage;
-    }
-
-
-
-    public void addMessage(String newMessage) {
-         messages.add(newMessage);
-    }
-
-    public boolean haveConversation()
-    {
-        if(messages.get(messages.size()-1) != null){
-            return true;
-        }else
-        {
-            return false;
-        }
     }
 }
