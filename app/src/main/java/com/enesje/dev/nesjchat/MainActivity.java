@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 if(conValues.getUserIDTwo().equals(currentUserID))
                                 {
-                                     newConversation = new Conversation(conversationID,conValues.getFriendlyNameOne() , conValues.getLastMessage(),conValues.getUserIDTwo());
+                                     newConversation = new Conversation(conversationID,conValues.getFriendlyNameOne() , conValues.getLastMessage(),conValues.getUserIDOne());
                                 }
                                 if(newConversation != null){
                                     conversations.add(newConversation);

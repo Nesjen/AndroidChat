@@ -12,6 +12,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -47,12 +48,13 @@ public class ChatActivity extends AppCompatActivity {
     private String senderID;
     private String messageToSend;
     private boolean gotConversation = false;
-    private String conversationID = "";
+    private String conversationID="";
     private String currentConversationID = "";
     String count = "1";
     private ArrayList<Message> messageList = new ArrayList<>();
     private String myUsername;
     private boolean shouldCreateConversation = false;
+    private boolean readyToSend = false;
 
 
 
@@ -66,6 +68,7 @@ public class ChatActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         //myUsername = (String) getIntent().getSerializableExtra("myUsername");
         sender = (Contact) getIntent().getSerializableExtra("Contact");
+
         getSupportActionBar().setTitle(sender.getContactName());
         currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         senderID = sender.getContactID();
@@ -78,21 +81,32 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String message = inputText.getText().toString();
                 //conversation.addMessage(message);
-                messageToSend = message;
-                String MessageID = "" + System.currentTimeMillis();
-                Message msg = new Message(currentUserID,message,MessageID);
-                addMessage();
-                pushMsg(msg,MessageID);
-                inputText.setText("");
+                if(readyToSend) {
+                    messageToSend = message;
+                    String MessageID = "" + System.currentTimeMillis();
+                    Message msg = new Message(currentUserID, message, MessageID);
+                    addMessage();
+                    pushMsg(msg, MessageID);
+                    inputText.setText("");
+                }
             }
         });
 
         messageView = (ListView) findViewById(R.id.MessageView);
         showMessages();
 
-
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        messageList.clear();
+        addMessage();
+        showMessages();
+        readyToSend = false;
+    }
+
+    //todo move firebase elements to seperate class
     public void getUserNameFromDB()
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -120,6 +134,8 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
+
+
     public void showMessages()
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -130,7 +146,6 @@ public class ChatActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot snapshot) {
                 for (DataSnapshot postSnapshot: snapshot.getChildren()) {
                     conversationID = postSnapshot.getKey();
-
                     if(conversationID.contains(currentUserID)){
                         if(conversationID.contains(senderID))
                         {
@@ -207,10 +222,8 @@ public class ChatActivity extends AppCompatActivity {
                         }
                     }
                 }
-                if(!gotConversation)
-                {
-                    shouldCreateConversation = true;
-                }
+
+                readyToSend = true;
 
             }
             @Override
@@ -230,16 +243,25 @@ public class ChatActivity extends AppCompatActivity {
         ConversationValues conVal = new ConversationValues(message.getMessage(),currentUserID,senderID,myUsername,sender.getContactName());
         System.out.println("******************Myusername:" + sender.getContactName());
         System.out.println("Sender:" + myUsername);
+        System.out.println("ConversationID: " + currentConversationID);
+        System.out.println("ConvfaktiskOD" + conversationID);
+        boolean haveConv = false;
+         if(!conversationID.equals("")){
+             System.out.println("Prøva å sjekke med: " + conversationID );
+             System.out.println("Prøva å sjekke:" + currentUserID + "|" + senderID );
 
-        if(gotConversation){
-            System.out.println("hadde conv!");
-            if(currentConversationID.equals(currentUserID + "|" + senderID)) {
+             if(conversationID == (currentUserID + "|" + senderID)) {
                 System.out.println("Var lik 1");
+                haveConv = true;
                 FirebaseDatabase.getInstance().getReference("conversation").child(currentUserID + "|" + senderID).child(messageID).setValue(message);
                 FirebaseDatabase.getInstance().getReference("conversationValues").child(currentUserID + "|" + senderID ).setValue(conVal);
             }
 
-            if(currentConversationID.equals(senderID + "|" + currentUserID)) {
+             String test = senderID + "|" + currentUserID;
+             System.out.println("*********************************************THIS:" + test);
+             System.out.println("*********************************************THIS:" + conversationID);
+            if(conversationID.equals(test)) {
+                haveConv = true;
                 System.out.println("Va lik 2!");
                 FirebaseDatabase.getInstance().getReference("conversation").child(senderID + "|" + currentUserID).child(messageID).setValue(message);
                 FirebaseDatabase.getInstance().getReference("conversationValues").child(senderID + "|" + currentUserID).setValue(conVal);
@@ -248,9 +270,12 @@ public class ChatActivity extends AppCompatActivity {
             }
         }
 
-        if(shouldCreateConversation){
+        if(!haveConv){
+            System.out.println("Fant ikkje.. Setter bruka:" + currentUserID + "|" + senderID );
+
             System.out.println("Hadde ikke conc!!");
-            currentConversationID = currentUserID + "|" + senderID;
+            System.out.println("Cur: " +currentUserID + "|" + senderID);
+            conversationID = currentUserID + "|" + senderID;
             gotConversation = true;
             shouldCreateConversation = false;
             FirebaseDatabase.getInstance().getReference("conversation").child(currentUserID + "|" + senderID).child(messageID).setValue(message);
