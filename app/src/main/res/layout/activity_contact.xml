@@ -6,6 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:windowActionBar="false"
+    android:theme="@style/AppTheme.AppBarOverlay"
+
 
     android:id="@+id/contactCoordinator">
 
@@ -16,7 +18,7 @@
         android:background="@android:color/holo_blue_dark"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:popupTheme="@style/AppTheme.PopupOverlay"
         />
 
 

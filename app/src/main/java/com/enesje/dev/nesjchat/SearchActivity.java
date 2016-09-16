@@ -18,6 +18,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,33 +37,31 @@ import java.util.List;
 public class SearchActivity extends AppCompatActivity {
 
     private CoordinatorLayout searchCoordinatorLayout;
-    private List<String> contactNames;
-    private ListView lv;
+    private ArrayList<SearchContainer> searchResults;
+    private ListView searchResultView;
+    private String query = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        System.out.println("Mekker Search Activty!");
-        contactNames = new ArrayList<>();
-        lv = (ListView) findViewById(R.id.searchResultView);
-        searchCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.searchResultCoordinator);
-        contactNames.add("Eirik Nesje");
-        contactNames.add("Inge Blaalid");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        searchResultView = (ListView) findViewById(R.id.searchResultView);
 
 
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, contactNames);
-
-        lv.setAdapter(arrayAdapter);
-
-
-        Intent intent = getIntent();
-        if(Intent.ACTION_SEARCH.equals(intent.getAction())) {
-           //String query = Intent.getStringExtra(SearchManager.QUERY);
-           // doSearch(query);
-            System.out.println("Hello");
+        searchResults = new ArrayList<>();
+        Intent searchIntent = getIntent();
+        if(Intent.ACTION_SEARCH.equals(searchIntent.getAction()))
+        {
+            String query = searchIntent.getStringExtra(SearchManager.QUERY);
+            Toast.makeText(SearchActivity.this, query, Toast.LENGTH_SHORT).show();
+            this.query = query;
+            searchConversations(query);
         }
+
 
     }
 
@@ -88,4 +94,52 @@ public class SearchActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
+    public void searchConversations(final String query)
+    {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("conversation");
+        searchResults.clear();
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                for (DataSnapshot postSnapshot: snapshot.getChildren()) {
+                    String conversationID = postSnapshot.getKey();
+                    if(conversationID.contains(currentUserID)) {
+                        for (DataSnapshot childSnap : postSnapshot.getChildren()) {
+                            Message newMsg = childSnap.getValue(Message.class);
+                            if (newMsg.getMessage().contains(query)) {
+                                conversationID = postSnapshot.getKey();
+                                SearchContainer searchRow = new SearchContainer(conversationID, newMsg, 22);
+                                searchResults.add(searchRow);
+                            }
+                        }
+                    }
+                }
+                showResults();
+                //messageAdapter = new MessageAdapter(ChatActivity.this, messageList,currentUserID);
+                //messageView.setAdapter(messageAdapter);
+                //messageView.setSelection(messageAdapter.getCount() - 1);
+
+
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+                //ToDo fix noken feilmeldinga
+            }
+        });
+    }
+
+
+    public void showResults()
+    {
+        SearchResultAdapter messageAdapter = new SearchResultAdapter(SearchActivity.this, searchResults);
+        searchResultView.setAdapter(messageAdapter);
+        searchResultView.setSelection(messageAdapter.getCount() - 1);
+    }
+
+
 }

@@ -5,6 +5,7 @@
     android:gravity="center_horizontal"
     android:orientation="vertical"
 
+
     tools:context="com.enesje.dev.nesjchat.LoginActivity">
 
     <android.support.v7.widget.Toolbar
