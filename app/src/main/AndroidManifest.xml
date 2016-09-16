@@ -20,10 +20,6 @@
             android:value=".SearchActivity" />
         <activity android:name=".MainActivity">
 
-
-
-
-
         </activity>
 
         <activity android:name=".SearchActivity">

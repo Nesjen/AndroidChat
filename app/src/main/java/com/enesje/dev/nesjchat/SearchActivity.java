@@ -113,8 +113,11 @@ public class SearchActivity extends AppCompatActivity {
                             Message newMsg = childSnap.getValue(Message.class);
                             if (newMsg.getMessage().contains(query)) {
                                 conversationID = postSnapshot.getKey();
+
                                 SearchContainer searchRow = new SearchContainer(conversationID, newMsg, 22);
-                                searchResults.add(searchRow);
+                                if(!searchRow.getMsg().getSenderOne().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                                    searchResults.add(searchRow);
+                                }
 
                             }
                         }

@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 
 /**
@@ -24,17 +26,21 @@ public class SearchResultAdapter extends ArrayAdapter<SearchContainer> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // Get the data item for this position
         SearchContainer searchContainer = getItem(position);
         searchContainer.setPosition(position);
-        // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_contanct, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_searchresult, parent, false);
         }
-        TextView contactName = (TextView) convertView.findViewById(R.id.contactName);
-        // Populate the data into the template view using the data object
-        contactName.setText(searchContainer.getMsg().getMessage());//
-        // Return the completed view to render on screen
+        TextView senderTV = (TextView) convertView.findViewById(R.id.search_message_sender);
+        TextView messageTV = (TextView) convertView.findViewById(R.id.search_message_message);
+
+        if(!searchContainer.getMsg().getSenderOne().equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
+        {
+            senderTV.setText(searchContainer.getMsg().getSenderOne());//
+            messageTV.setText(searchContainer.getMsg().getMessage());//
+
+        }
+
         return convertView;
     }
 

@@ -43,7 +43,7 @@
         android:clickable="true"
 
         app:fabSize="normal"
-        app:srcCompat="@android:drawable/ic_input_add"
+        app:srcCompat="@drawable/addsign"
         android:id="@+id/newChatButton"
         android:layout_gravity="end|bottom"
         android:layout_marginBottom="30dp"
@@ -73,4 +73,4 @@ android:fitsSystemWindows="true"
 app:headerLayout="@layout/navi_header"
 app:menu="@menu/activity_main_drawer" />
 
-    </android.support.v4.widget.DrawerLayout>
+</android.support.v4.widget.DrawerLayout>

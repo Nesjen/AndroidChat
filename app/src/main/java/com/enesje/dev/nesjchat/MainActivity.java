@@ -4,6 +4,9 @@ import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         conversationView = (ListView) findViewById(R.id.conversationView);
         conversations = new ArrayList<>();
 
+
         //For Firebase handling:
         currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid(); // Gets current userID (currentUserID)
         getUserNameFromDB(); // Gets current username (myUsername)
@@ -64,8 +68,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //Handle FAB - new message button.
         handleNewMessageButton();
 
+        //Handle clicks on conversations
         handleConversationClicks();
 
+        //Navbar
         navBar();
 
 
