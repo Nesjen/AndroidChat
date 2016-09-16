@@ -115,6 +115,7 @@ public class SearchActivity extends AppCompatActivity {
                                 conversationID = postSnapshot.getKey();
                                 SearchContainer searchRow = new SearchContainer(conversationID, newMsg, 22);
                                 searchResults.add(searchRow);
+
                             }
                         }
                     }
