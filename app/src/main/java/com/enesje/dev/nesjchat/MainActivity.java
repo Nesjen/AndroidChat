@@ -24,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -61,6 +62,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //For Firebase handling:
         currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid(); // Gets current userID (currentUserID)
         getUserNameFromDB(); // Gets current username (myUsername)
+
+
+
+
 
         //Display conversation on mainscreen
         showConversationValue();
@@ -106,6 +111,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        if(id == R.id.logout)
+        {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+        }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -288,6 +298,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
     }
 
 }

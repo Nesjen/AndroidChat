@@ -16,6 +16,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -40,6 +42,8 @@ public class SearchActivity extends AppCompatActivity {
     private ArrayList<SearchContainer> searchResults;
     private ListView searchResultView;
     private String query = "";
+    private String currentUserID;
+    private String myUsername;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,14 +54,14 @@ public class SearchActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         searchResultView = (ListView) findViewById(R.id.searchResultView);
-
+        currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+       // getUserNameFromDB();
 
         searchResults = new ArrayList<>();
         Intent searchIntent = getIntent();
         if(Intent.ACTION_SEARCH.equals(searchIntent.getAction()))
         {
             String query = searchIntent.getStringExtra(SearchManager.QUERY);
-            Toast.makeText(SearchActivity.this, query, Toast.LENGTH_SHORT).show();
             this.query = query;
             searchConversations(query);
         }
@@ -96,6 +100,10 @@ public class SearchActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Søker kun gjennom mottatte meldinger!
+     * @param query
+     */
     public void searchConversations(final String query)
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -104,7 +112,6 @@ public class SearchActivity extends AppCompatActivity {
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
                 for (DataSnapshot postSnapshot: snapshot.getChildren()) {
                     String conversationID = postSnapshot.getKey();
@@ -124,9 +131,7 @@ public class SearchActivity extends AppCompatActivity {
                     }
                 }
                 showResults();
-                //messageAdapter = new MessageAdapter(ChatActivity.this, messageList,currentUserID);
-                //messageView.setAdapter(messageAdapter);
-                //messageView.setSelection(messageAdapter.getCount() - 1);
+
 
 
             }
@@ -143,7 +148,50 @@ public class SearchActivity extends AppCompatActivity {
         SearchResultAdapter messageAdapter = new SearchResultAdapter(SearchActivity.this, searchResults);
         searchResultView.setAdapter(messageAdapter);
         searchResultView.setSelection(messageAdapter.getCount() - 1);
+
+       // searchResultView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+          //  @Override
+          //  public void onItemClick(AdapterView<?> parent, View view, int position,
+          //                          long id) {
+              //  SearchContainer searchContainer= (SearchContainer) parent.getAdapter().getItem(position);
+              //  Contact contact = new Contact(searchContainer.getMsg().getSenderOne(),conversation.getSender()); //String contactID, String contactName
+              //  Intent intent = new Intent(SearchActivity.this, ChatActivity.class);
+              //  intent.putExtra("Contact", contact);
+              //  intent.putExtra("myUsername", myUsername);
+              //  startActivity(intent);
+        //    }
+       // });
     }
+
+        //Todo, put in seperate class
+        public void getUserNameFromDB()
+        {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference myRef = database.getReference("users");
+
+
+            myRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    for (DataSnapshot postSnapshot: snapshot.getChildren()) {
+                        String userID = postSnapshot.getKey(); //Gets the userID
+                        if(userID.equals(currentUserID)){ //If userID match currentUserID
+                            Contact tempContact = postSnapshot.getValue(Contact.class);
+                            myUsername = tempContact.getContactName(); //Gets username
+                        }
+                    }
+                }
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    //ToDo fix noken feilmeldinga
+                }
+            });
+
+        }
+
+
+
+
 
 
 }
