@@ -123,7 +123,7 @@ public class SearchActivity extends AppCompatActivity {
 
                                 SearchContainer searchRow = new SearchContainer(conversationID, newMsg, 22);
                                 if(!searchRow.getMsg().getSenderOne().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                                    searchResults.add(searchRow);
+                                    searchResults.add(searchRow); //Add Result
                                 }
 
                             }
