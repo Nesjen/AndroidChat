@@ -57,7 +57,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.maincoordinator);
         conversationView = (ListView) findViewById(R.id.conversationView);
         conversations = new ArrayList<>();
-
+      //  FirebaseHandler firebaseHandler = new FirebaseHandler();
+       // System.out.println("*********" + firebaseHandler.getCurrentUserID());
+       // String currentUsername = null;
+       // while(currentUsername == null)
+       // {
+       //     currentUsername = firebaseHandler.getCurrentUsername();
+       // }
+       // System.out.println("BRUKERNAVN:" + currentUsername);
 
         //For Firebase handling:
         currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid(); // Gets current userID (currentUserID)
